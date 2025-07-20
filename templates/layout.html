@@ -1,0 +1,31 @@
+<!-- templates/layout.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Vídeo</title>
+    <style>
+        /* Adicione o seu CSS aqui */
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Painel de Controlo</a> |
+        <a href="/etapa1">Etapa 1</a> |
+        <a href="/etapa2">Etapa 2</a> |
+        <a href="/etapa3">Etapa 3</a> |
+        <a href="/etapa4">Etapa 4</a> |
+        <a href="/etapa5">Etapa 5</a> |
+        <a href="/etapa6">Etapa 6</a>
+    </nav>
+    <hr>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</body>
+</html>

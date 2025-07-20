@@ -1,0 +1,10 @@
+Flask
+python-dotenv
+youtube-transcript-api
+google-generativeai
+google-cloud-texttospeech
+moviepy==2.0.0.dev2
+Pillow
+numpy
+werkzeug
+gunicorn 

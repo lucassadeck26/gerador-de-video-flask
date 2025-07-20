@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Etapa 3: Gerar Narração com IA</h1>
+
+    {% if status.narracao %}
+        <div class="status completo">
+            <p><strong>Uma narração em áudio já existe:</strong> {{ status.narracao }}</p>
+            <p>Você pode avançar para a próxima etapa (montagem do vídeo) ou excluir a narração atual para gerar uma nova.</p>
+            <br>
+            <a href="#" style="padding: 10px; background-color: green; color: white; text-decoration: none;">
+                Continuar para a Etapa Final (Montagem) &rarr;
+            </a>
+            <form action="{{ url_for('excluir', etapa='narracao') }}" method="post" style="display: inline-block; margin-left: 20px;">
+                <button type="submit" style="padding: 10px; background-color: red; color: white; border: none; cursor: pointer;">
+                    Excluir e Recomeçar
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="status pendente">
+            <p>O roteiro <strong>'{{ status.roteiro }}'</strong> está pronto para ser transformado em áudio.</p>
+            <p>Clique no botão abaixo para que a API de áudio do Google Cloud crie uma narração com voz natural.</p>
+            <br>
+            <form action="{{ url_for('etapa3_narracao') }}" method="post">
+                <button type="submit" style="padding: 15px; font-size: 16px;">
+                    🎙️ Gerar Áudio da Narração
+                </button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

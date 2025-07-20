@@ -1,0 +1,12 @@
+# Ignorar o ambiente virtual
+venv/
+__pycache__/
+
+# Ignorar ficheiros com segredos
+.env
+*.json
+
+# Ignorar pastas de dados
+imagens/
+videos/
+transcricao/

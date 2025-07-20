@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Etapa 6: Pós-Produção (Gerir e Adicionar Trilha Sonora)</h1>
+
+    <!-- Secção de Resultado Final -->
+    {% if status.video_final %}
+        <div class="status completo">
+            <h3>PROJETO FINALIZADO! 🎉</h3>
+            <p>Seu vídeo com narração e trilha sonora está pronto!</p>
+            <p>Ficheiro: {{ status.video_final }}</p>
+            
+            <video width="640" height="360" controls>
+                <source src="{{ url_for('serve_final_video', filename=status.video_final) }}" type="video/mp4">
+                Seu navegador não suporta a tag de vídeo.
+            </video>
+            <br><br>
+            <a href="{{ url_for('serve_final_video', filename=status.video_final) }}" download style="padding: 10px; background-color: #007bff; color: white; text-decoration: none;">
+                Baixar Vídeo Final
+            </a>
+             <form action="{{ url_for('excluir', etapa='video_final') }}" method="post" style="display: inline-block; margin-left: 20px;">
+                 <input type="hidden" name="action" value="delete_all">
+                <button type="submit" onclick="return confirm('Isso excluirá o vídeo final. Deseja recomeçar a etapa de pós-produção?')" style="padding: 10px; background-color: #6c757d; color: white; border: none; cursor: pointer;">
+                    Excluir e Recomeçar Pós-Produção
+                </button>
+            </form>
+        </div>
+
+    {% else %}
+        <!-- Secção de Gestão de Trilhas -->
+        <div class="status pendente" style="margin-bottom: 2em;">
+            <h3>Gerir Trilhas Sonoras</h3>
+            <!-- Upload -->
+            <form action="{{ url_for('etapa6_pos_video') }}" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;">
+                <input type="hidden" name="action" value="upload_trilha">
+                <label for="novas_trilhas">Adicionar novas trilhas (.mp3):</label>
+                <input type="file" id="novas_trilhas" name="novas_trilhas" multiple accept=".mp3">
+                <button type="submit">Enviar Trilhas</button>
+            </form>
+            <!-- Exclusão -->
+            {% if status.trilha_sonora %}
+            <form action="{{ url_for('excluir', etapa='trilha_sonora') }}" method="post">
+                <p>Selecione as trilhas que deseja excluir:</p>
+                <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                {% for trilha in status.trilha_sonora %}
+                    <label><input type="checkbox" name="arquivos_selecionados" value="{{ trilha }}"> {{ trilha }}</label><br>
+                {% endfor %}
+                </div>
+                <button type="submit" name="action" value="delete_selected" onclick="return confirm('Tem certeza?')" style="background-color: #dc3545; color: white;">Excluir Selecionadas</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Secção de Mixagem Final -->
+        <div class="status pendente">
+            <h3>Finalizar Vídeo</h3>
+            <p>Selecione as trilhas sonoras (na ordem desejada) para mixar com a narração.</p>
+            <form action="{{ url_for('etapa6_pos_video') }}" method="post">
+                <input type="hidden" name="action" value="mixar_video">
+                <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                {% if status.trilha_sonora %}
+                    {% for trilha in status.trilha_sonora %}
+                        <label><input type="checkbox" name="trilhas_selecionadas" value="{{ trilha }}"> {{ trilha }}</label><br>
+                    {% endfor %}
+                {% else %}
+                    <p>Nenhuma trilha sonora encontrada. Por favor, envie uma ou mais trilhas para continuar.</p>
+                {% endif %}
+                </div>
+                <br>
+                <button type="submit" style="padding: 15px; font-size: 16px;" {% if not status.trilha_sonora %}disabled{% endif %}>
+                    🎶 Adicionar Trilha(s) e Finalizar Vídeo
+                </button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

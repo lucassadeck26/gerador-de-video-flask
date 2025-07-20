@@ -1,0 +1,52 @@
+<!-- templates/etapa2_roteiro.html (Exemplo com JavaScript) -->
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Etapa 2: Gerar Roteiro com IA</h1>
+
+    <div id="content-container">
+        {% if status.roteiro %}
+            <div class="status completo">
+                <p><strong>Um roteiro já existe:</strong> {{ status.roteiro }}</p>
+                <a href="{{ url_for('etapa3_narracao') }}">Continuar para a Etapa 3 &rarr;</a>
+                <!-- Formulário de exclusão -->
+            </div>
+        {% else %}
+            <div class="status pendente">
+                <p>A transcrição <strong>'{{ status.transcricao }}'</strong> está pronta.</p>
+                <form action="{{ url_for('etapa2_roteiro') }}" method="post">
+                    <button type="submit">✨ Gerar Roteiro com IA</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+<script>
+    const statusContainer = document.getElementById('content-container');
+    const statusData = {{ status|tojson }};
+
+    function checkStatus() {
+        fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.roteiro) {
+                    console.log('Roteiro pronto! Recarregando...');
+                    window.location.reload();
+                } else {
+                    console.log('Ainda a processar roteiro...');
+                }
+            });
+    }
+
+    // Só começa a verificar se não houver um roteiro pronto
+    if (!statusData.roteiro) {
+        const form = statusContainer.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', () => {
+                statusContainer.innerHTML = '<p><strong>Processando...</strong> A página irá recarregar automaticamente quando o roteiro estiver pronto.</p>';
+                // Começa a verificar o estado 5 segundos após o envio
+                setInterval(checkStatus, 10000); // Verifica a cada 10 segundos
+            });
+        }
+    }
+</script>
+{% endblock %}

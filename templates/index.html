@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Painel de Controle</h1>
+    <p>Acompanhe o progresso do seu projeto.</p>
+
+    <!-- Etapa 1 -->
+    <div class="status {% if status.transcricao %}completo{% else %}pendente{% endif %}">
+        <h3>Etapa 1: Transcrição</h3>
+        {% if status.transcricao %}
+            <p>Status: Concluído ✅</p>
+            <p>Arquivo: {{ status.transcricao }}</p>
+            <a href="{{ url_for('etapa2_roteiro') }}">Ir para a Etapa 2 &rarr;</a>
+        {% else %}
+            <p>Status: Pendente ⏳</p>
+            <a href="{{ url_for('etapa1_transcricao') }}">Iniciar Etapa 1</a>
+        {% endif %}
+    </div>
+
+    <!-- Etapa 2 -->
+    <div class="status {% if status.roteiro %}completo{% else %}pendente{% endif %}">
+        <h3>Etapa 2: Roteiro IA</h3>
+        {% if status.roteiro %}
+            <p>Status: Concluído ✅</p>
+            <p>Arquivo: {{ status.roteiro }}</p>
+            <a href="{{ url_for('etapa3_narracao') }}">Ir para a Etapa 3 &rarr;</a>
+        {% else %}
+            <p>Status: Pendente ⏳</p>
+            {% if status.transcricao %}
+                <a href="{{ url_for('etapa2_roteiro') }}">Iniciar Etapa 2</a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Etapa 3 -->
+    <div class="status {% if status.narracao %}completo{% else %}pendente{% endif %}">
+        <h3>Etapa 3: Narração</h3>
+        {% if status.narracao %}
+            <p>Status: Concluído ✅</p>
+            <p>Arquivo: {{ status.narracao }}</p>
+            <a href="{{ url_for('etapa4_videos_base') }}">Ir para a Etapa 4 &rarr;</a>
+        {% else %}
+            <p>Status: Pendente ⏳</p>
+            {% if status.roteiro %}
+                <a href="{{ url_for('etapa3_narracao') }}">Iniciar Etapa 3</a>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <!-- Etapa 4 -->
+    <div class="status {% if status.videos_base and status.videos_base|length == status.imagens|length and status.imagens|length > 0 %}completo{% else %}pendente{% endif %}">
+        <h3>Etapa 4: Vídeos Base</h3>
+        {% if status.videos_base and status.videos_base|length == status.imagens|length and status.imagens|length > 0 %}
+            <p>Status: Concluído ✅</p>
+            <p>{{ status.videos_base|length }} vídeos base gerados a partir de {{ status.imagens|length }} imagens.</p>
+            <a href="{{ url_for('etapa4_videos_base') }}">Gerenciar Imagens e Vídeos</a>
+            <!-- Link para a Etapa 5 (Montagem Final) no futuro -->
+        {% else %}
+            <p>Status: Pendente ⏳</p>
+            <p>{{ status.videos_base|length }} de {{ status.imagens|length }} vídeos base gerados.</p>
+            {% if status.narracao %}
+                <a href="{{ url_for('etapa4_videos_base') }}">Iniciar Etapa 4</a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+
+      <!-- Etapa 5 -->
+    <div class="status {% if status.video_final %}completo{% else %}pendente{% endif %}">
+        <h3>Etapa 5: Montagem Final</h3>
+        {% if status.video_final %}
+            <p>Status: Concluído ✅</p>
+            <p>Arquivo: {{ status.video_final }}</p>
+            <a href="{{ url_for('etapa5_montagem_final') }}">Ver e Baixar Vídeo Final &rarr;</a>
+        {% else %}
+            <p>Status: Pendente ⏳</p>
+            {% if status.videos_base %}
+                <a href="{{ url_for('etapa5_montagem_final') }}">Iniciar Etapa 5</a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+
+    
+ <!-- Etapa 6 -->
+
+    <div class="status {% if status.video_final %}completo{% else %}pendente{% endif %}">
+        <h3>Etapa 6: Pós-Produção (Vídeo Final)</h3>
+        {% if status.video_final %}
+            <p>Estado: Concluído ✅</p>
+            <p>Ficheiro: {{ status.video_final }}</p>
+            <a href="{{ url_for('etapa6_pos_video') }}">Ver Vídeo Final &rarr;</a>
+        {% else %}
+            <p>Estado: Pendente ⏳</p>
+            {% if status.video_sem_trilha %}
+                <a href="{{ url_for('etapa6_pos_video') }}">Iniciar Etapa 6</a>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

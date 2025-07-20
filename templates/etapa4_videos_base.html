@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Etapa 4: Gerenciar Imagens e Gerar Vídeos Base</h1>
+
+    <!-- Seção de Upload de Imagens -->
+    <div class="status pendente" style="margin-bottom: 2em;">
+        <h3>Adicionar Novas Imagens</h3>
+        <form action="{{ url_for('etapa4_videos_base') }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="upload">
+            <label for="novas_imagens">Selecione uma ou mais imagens:</label>
+            <input type="file" id="novas_imagens" name="novas_imagens" multiple accept="image/png, image/jpeg">
+            <button type="submit">Enviar Imagens</button>
+        </form>
+    </div>
+
+    <!-- Seção de Gerenciamento de Imagens Existentes -->
+    <div class="status {% if status.imagens %}completo{% else %}pendente{% endif %}">
+        <h3>Imagens Atuais ({{ status.imagens|length }})</h3>
+        {% if status.imagens %}
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                {% for imagem in status.imagens %}
+                    <div style="border: 1px solid #ddd; padding: 5px; text-align: center;">
+                        <img src="/imagens/{{ imagem }}" alt="{{ imagem }}" width="100">
+                        <p style="font-size: 12px; margin: 5px 0 0 0;">{{ imagem }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Formulário para Excluir imagens (COM CORREÇÕES) -->
+            <form action="{{ url_for('excluir', etapa='imagens') }}" method="post">
+                <p>Selecione as imagens que deseja excluir:</p>
+                <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                {% for imagem in status.imagens %}
+                    <label><input type="checkbox" name="arquivos_selecionados" value="{{ imagem }}"> {{ imagem }}</label><br>
+                {% endfor %}
+                </div>
+                <!-- Botões atualizados com confirmação e actions -->
+                <button type="submit" name="action" value="delete_selected" onclick="return confirm('Tem certeza que deseja excluir as imagens selecionadas?')" style="background-color: #dc3545; color: white;">Excluir Selecionadas</button>
+                <button type="submit" name="action" value="delete_all" onclick="return confirm('ATENÇÃO: Isso excluirá TODAS as imagens. Tem certeza?')" style="background-color: #6c757d; color: white;">Excluir Todas</button>
+            </form>
+            
+            <!-- Formulário para Renomear -->
+            <form action="{{ url_for('etapa4_videos_base') }}" method="post" style="margin-top: 20px;">
+                <input type="hidden" name="action" value="renomear">
+                <button type="submit">🔢 Renomear em Ordem Numérica</button>
+            </form>
+
+             <!-- FORMULÁRIO PARA REDIMENSIONAR -->
+                <form action="{{ url_for('etapa4_videos_base') }}" method="post" style="display: inline-block; margin-left: 10px;">
+                    <input type="hidden" name="action" value="redimensionar">
+                    <button type="submit" onclick="return confirm('Isso irá redimensionar TODAS as imagens para 1280x720, sobrescrevendo as originais. Deseja continuar?')">📏 Redimensionar Todas para 1280x720</button>
+                </form>
+            </div>
+
+        {% else %}
+            <p>Nenhuma imagem encontrada. Por favor, envie algumas imagens para começar.</p>
+        {% endif %}
+    </div>
+
+    <!-- Seção de Geração de Vídeos -->
+    <div class="status {% if status.videos_base|length == status.imagens|length and status.imagens|length > 0 %}completo{% else %}pendente{% endif %}" style="margin-top: 2em;">
+        <h3>Geração de Vídeos Base ({{ status.videos_base|length }} / {{ status.imagens|length }} gerados)</h3>
+        {% if status.imagens %}
+            <p>Tudo pronto para gerar os vídeos de 10 segundos com zoom para cada imagem.</p>
+            <form action="{{ url_for('etapa4_videos_base') }}" method="post">
+                <input type="hidden" name="action" value="gerar_videos">
+                <button type="submit" style="padding: 15px; font-size: 16px;">🎬 Gerar Vídeos Base</button>
+            </form>
+        {% else %}
+            <p>Adicione imagens antes de gerar os vídeos base.</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Etapa 5: Montagem do Vídeo Final</h1>
+
+    <!-- Secção de Gerenciamento dos Vídeos Base -->
+    <div class="status {% if status.videos_base %}completo{% else %}pendente{% endif %}" style="margin-bottom: 2em;">
+        <h3>Vídeos Base Disponíveis ({{ status.videos_base|length }})</h3>
+        {% if status.videos_base %}
+            <p>Estes são os clipes que serão usados na montagem final. Você pode remover os que não desejar.</p>
+            
+            <form action="{{ url_for('excluir', etapa='videos_base') }}" method="post">
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                {% for video in status.videos_base %}
+                    <label><input type="checkbox" name="arquivos_selecionados" value="{{ video }}"> {{ video }}</label><br>
+                {% endfor %}
+                </div>
+                <button type="submit" name="action" value="delete_selected" onclick="return confirm('Tem certeza que deseja excluir os vídeos selecionados?')" style="background-color: #dc3545; color: white;">Excluir Selecionados</button>
+                <button type="submit" name="action" value="delete_all" onclick="return confirm('ATENÇÃO: Isso excluirá TODOS os vídeos base. Tem certeza?')" style="background-color: #6c757d; color: white;">Excluir Todos</button>
+            </form>
+        {% else %}
+            <p>Nenhum vídeo base encontrado. Volte para a Etapa 4 para gerá-los.</p>
+        {% endif %}
+    </div>
+
+    <!-- Secção de Montagem do Vídeo Final -->
+    {% if status.video_final %}
+        <div class="status completo">
+            <h3>Seu vídeo final está pronto!</h3>
+            <p>Ficheiro: {{ status.video_final }}</p>
+            
+            <video width="640" height="360" controls>
+                <source src="{{ url_for('serve_final_video', filename=status.video_final) }}" type="video/mp4">
+                Seu navegador não suporta a tag de vídeo.
+            </video>
+            <br><br>
+            <a href="{{ url_for('serve_final_video', filename=status.video_final) }}" download style="padding: 10px; background-color: #007bff; color: white; text-decoration: none;">
+                Baixar Vídeo
+            </a>
+            <form action="{{ url_for('excluir', etapa='video_final') }}" method="post" style="display: inline-block; margin-left: 20px;">
+                 <input type="hidden" name="action" value="delete_all">
+                <button type="submit" onclick="return confirm('Isso excluirá o vídeo final. Deseja recomeçar a montagem?')" style="padding: 10px; background-color: red; color: white; border: none; cursor: pointer;">
+                    Excluir e Recomeçar Montagem
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <!-- Só mostra o botão de montar se houver vídeos base e narração -->
+        {% if status.videos_base and status.narracao %}
+        <div class="status pendente">
+            <p>Todos os componentes estão prontos para a montagem final.</p>
+            <ul>
+                <li><strong>Narração:</strong> {{ status.narracao }}</li>
+                <li><strong>Vídeos Base:</strong> {{ status.videos_base|length }} clipes selecionados</li>
+            </ul>
+            <p>Clique no botão abaixo para juntar tudo e criar o vídeo completo.</p>
+            <br>
+            <form action="{{ url_for('etapa5_montagem_final') }}" method="post">
+                <button type="submit" style="padding: 15px; font-size: 16px;">
+                    🚀 Montar Vídeo Final
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

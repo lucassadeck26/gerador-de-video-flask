@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Etapa 1: Gerar Transcrição do YouTube</h1>
+
+    <div id="content-container">
+        {% if status.transcricao %}
+            <div class="status completo">
+                <p><strong>Uma transcrição já existe:</strong> {{ status.transcricao }}</p>
+                <a href="{{ url_for('etapa2_roteiro') }}">Continuar para a Etapa 2 &rarr;</a>
+                <!-- Formulário de exclusão -->
+            </div>
+        {% else %}
+            <div class="status pendente">
+                <p>Nenhuma transcrição encontrada. Insira o ID de um vídeo do YouTube para começar.</p>
+                <form action="{{ url_for('etapa1_transcricao') }}" method="post">
+                    <label for="video_id">ID do Vídeo:</label>
+                    <input type="text" id="video_id" name="video_id" size="30" required>
+                    <button type="submit">Gerar Transcrição</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+<script>
+    const statusContainer = document.getElementById('content-container');
+    const statusData = {{ status|tojson }};
+
+    function checkStatus() {
+        fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                // Verifica se a transcrição foi criada
+                if (data.transcricao) {
+                    console.log('Transcrição pronta! Recarregando...');
+                    // Redireciona para a próxima etapa automaticamente
+                    window.location.href = "{{ url_for('etapa2_roteiro') }}";
+                } else {
+                    console.log('Ainda a processar transcrição...');
+                }
+            });
+    }
+
+    // Só começa a verificar se não houver uma transcrição pronta
+    if (!statusData.transcricao) {
+        const form = statusContainer.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', () => {
+                statusContainer.innerHTML = '<p><strong>Processando...</strong> A página irá avançar automaticamente quando a transcrição estiver pronta.</p>';
+                // Começa a verificar o estado 5 segundos após o envio
+                setInterval(checkStatus, 5000); // Verifica a cada 5 segundos
+            });
+        }
+    }
+</script>
+{% endblock %}
